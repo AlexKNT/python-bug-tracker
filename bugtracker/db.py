@@ -28,5 +28,30 @@ def init_db():
         )
         """
     )
+    # Seed sample data if the table is empty
+    count = conn.execute("SELECT COUNT(*) FROM bugs").fetchone()[0]
+    if count == 0:
+        conn.execute(
+            "INSERT INTO bugs (title, description, status, priority) VALUES (?, ?, ?, ?)",
+            ("Login button not working", "Clicking the login button on the homepage does nothing in Firefox.", "open", "high"),
+        )
+        conn.execute(
+            "INSERT INTO bugs (title, description, status, priority) VALUES (?, ?, ?, ?)",
+            ("Add dark mode toggle", "Users want a dark mode option in the settings menu.", "open", "medium"),
+        )
+        conn.execute(
+            "INSERT INTO bugs (title, description, status, priority) VALUES (?, ?, ?, ?)",
+            ("Fix typo on About page", "'Teh' should be 'The' in the first paragraph.", "in-progress", "low"),
+        )
     conn.commit()
     conn.close()
+
+
+def get_all_bugs():
+    """Return all bugs ordered by most recently created first."""
+    conn = get_connection()
+    bugs = conn.execute(
+        "SELECT * FROM bugs ORDER BY created_at DESC"
+    ).fetchall()
+    conn.close()
+    return bugs

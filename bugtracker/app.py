@@ -2,7 +2,7 @@
 
 from flask import Flask, render_template
 
-from db import init_db
+from db import get_all_bugs, init_db
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-key"
@@ -13,8 +13,9 @@ init_db()
 
 @app.route("/")
 def index():
-    """Home page – will list all bugs."""
-    return render_template("index.html")
+    """Home page – list all bugs."""
+    bugs = get_all_bugs()
+    return render_template("index.html", bugs=bugs)
 
 
 if __name__ == "__main__":
