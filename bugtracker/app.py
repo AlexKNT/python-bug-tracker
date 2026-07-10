@@ -2,8 +2,13 @@
 
 from flask import Flask, render_template
 
+from db import init_db
+
 app = Flask(__name__)
 app.secret_key = "dev-secret-key"
+
+# Initialise the database on startup
+init_db()
 
 
 @app.route("/")
