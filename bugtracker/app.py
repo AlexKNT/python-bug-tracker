@@ -2,7 +2,7 @@
 
 from flask import Flask, flash, redirect, render_template, request, url_for
 
-from db import create_bug, delete_bug, get_all_bugs, get_bug, init_db, update_bug
+from db import create_bug, create_comment, delete_bug, get_all_bugs, get_bug, get_comments_for_bug, init_db, update_bug
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-key"
@@ -60,7 +60,26 @@ def bug_detail(bug_id):
     if bug is None:
         flash("Bug not found.", "error")
         return redirect(url_for("index"))
-    return render_template("bug_detail.html", bug=bug)
+    comments = get_comments_for_bug(bug_id)
+    return render_template("bug_detail.html", bug=bug, comments=comments)
+
+
+@app.route("/bug/<int:bug_id>/comment", methods=["POST"])
+def add_comment(bug_id):
+    """Add a comment to a bug."""
+    bug = get_bug(bug_id)
+    if bug is None:
+        flash("Bug not found.", "error")
+        return redirect(url_for("index"))
+
+    body = request.form.get("body", "").strip()
+    if not body:
+        flash("Comment cannot be empty.", "error")
+        return redirect(url_for("bug_detail", bug_id=bug_id))
+
+    create_comment(bug_id, body)
+    flash("Comment added.", "success")
+    return redirect(url_for("bug_detail", bug_id=bug_id))
 
 
 @app.route("/bug/<int:bug_id>/edit", methods=["GET", "POST"])

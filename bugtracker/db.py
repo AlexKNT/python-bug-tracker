@@ -28,6 +28,19 @@ def init_db():
         )
         """
     )
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS comments (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            bug_id      INTEGER NOT NULL,
+            author      TEXT DEFAULT 'user',
+            body        TEXT NOT NULL,
+            created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (bug_id) REFERENCES bugs(id) ON DELETE CASCADE
+        )
+        """
+    )
+
     # Seed sample data if the table is empty
     count = conn.execute("SELECT COUNT(*) FROM bugs").fetchone()[0]
     if count == 0:
@@ -118,3 +131,27 @@ def delete_bug(bug_id):
     conn.execute("DELETE FROM bugs WHERE id = ?", (bug_id,))
     conn.commit()
     conn.close()
+
+
+def get_comments_for_bug(bug_id):
+    """Return all comments for a bug, oldest first."""
+    conn = get_connection()
+    comments = conn.execute(
+        "SELECT * FROM comments WHERE bug_id = ? ORDER BY created_at ASC",
+        (bug_id,),
+    ).fetchall()
+    conn.close()
+    return comments
+
+
+def create_comment(bug_id, body, author="user"):
+    """Add a comment to a bug and return the new comment id."""
+    conn = get_connection()
+    cursor = conn.execute(
+        "INSERT INTO comments (bug_id, author, body) VALUES (?, ?, ?)",
+        (bug_id, author, body),
+    )
+    conn.commit()
+    comment_id = cursor.lastrowid
+    conn.close()
+    return comment_id
