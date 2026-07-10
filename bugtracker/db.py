@@ -97,3 +97,11 @@ def update_bug(bug_id, title, description, status, priority):
     )
     conn.commit()
     conn.close()
+
+
+def delete_bug(bug_id):
+    """Delete a bug by its id."""
+    conn = get_connection()
+    conn.execute("DELETE FROM bugs WHERE id = ?", (bug_id,))
+    conn.commit()
+    conn.close()

@@ -2,7 +2,7 @@
 
 from flask import Flask, flash, redirect, render_template, request, url_for
 
-from db import create_bug, get_all_bugs, get_bug, init_db, update_bug
+from db import create_bug, delete_bug, get_all_bugs, get_bug, init_db, update_bug
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-key"
@@ -100,6 +100,18 @@ def edit_bug(bug_id):
         return redirect(url_for("bug_detail", bug_id=bug_id))
 
     return render_template("edit_bug.html", bug=bug)
+
+
+@app.route("/bug/<int:bug_id>/delete", methods=["POST"])
+def delete_bug_route(bug_id):
+    """Delete a bug and redirect to the home page."""
+    bug = get_bug(bug_id)
+    if bug is None:
+        flash("Bug not found.", "error")
+        return redirect(url_for("index"))
+    delete_bug(bug_id)
+    flash("Bug deleted successfully!", "success")
+    return redirect(url_for("index"))
 
 
 if __name__ == "__main__":
