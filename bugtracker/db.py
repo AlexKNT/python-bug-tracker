@@ -55,3 +55,26 @@ def get_all_bugs():
     ).fetchall()
     conn.close()
     return bugs
+
+
+def create_bug(title, description, priority="medium"):
+    """Insert a new bug and return its id."""
+    conn = get_connection()
+    cursor = conn.execute(
+        "INSERT INTO bugs (title, description, priority) VALUES (?, ?, ?)",
+        (title, description, priority),
+    )
+    conn.commit()
+    bug_id = cursor.lastrowid
+    conn.close()
+    return bug_id
+
+
+def get_bug(bug_id):
+    """Return a single bug by its id."""
+    conn = get_connection()
+    bug = conn.execute(
+        "SELECT * FROM bugs WHERE id = ?", (bug_id,)
+    ).fetchone()
+    conn.close()
+    return bug

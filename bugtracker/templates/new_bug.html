@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="mb-6">
+        <a href="{{ url_for('index') }}" class="text-blue-600 hover:underline text-sm">&larr; Back to list</a>
+        <h2 class="text-xl font-semibold mt-2">Create New Bug</h2>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <form method="POST" action="{{ url_for('new_bug') }}">
+            <div class="mb-4">
+                <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    required
+                    value="{{ title or '' }}"
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Brief summary of the bug"
+                />
+            </div>
+
+            <div class="mb-4">
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea
+                    id="description"
+                    name="description"
+                    rows="5"
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Steps to reproduce, expected vs actual behaviour..."
+                >{{ description or '' }}</textarea>
+            </div>
+
+            <div class="mb-6">
+                <label for="priority" class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                <select
+                    id="priority"
+                    name="priority"
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                    <option value="low" {{ 'selected' if priority == 'low' else '' }}>Low</option>
+                    <option value="medium" {{ 'selected' if priority == 'medium' or not priority else '' }}>Medium</option>
+                    <option value="high" {{ 'selected' if priority == 'high' else '' }}>High</option>
+                </select>
+            </div>
+
+            <div class="flex gap-3">
+                <button
+                    type="submit"
+                    class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+                >
+                    Create Bug
+                </button>
+                <a
+                    href="{{ url_for('index') }}"
+                    class="bg-gray-200 text-gray-700 px-6 py-2 rounded hover:bg-gray-300 transition"
+                >
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

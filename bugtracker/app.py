@@ -1,8 +1,8 @@
 """Simple Local Bug Tracker – Flask application."""
 
-from flask import Flask, render_template
+from flask import Flask, flash, redirect, render_template, request, url_for
 
-from db import get_all_bugs, init_db
+from db import create_bug, get_all_bugs, init_db
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-key"
@@ -16,6 +16,38 @@ def index():
     """Home page – list all bugs."""
     bugs = get_all_bugs()
     return render_template("index.html", bugs=bugs)
+
+
+@app.route("/new", methods=["GET", "POST"])
+def new_bug():
+    """Create a new bug – show form (GET) or handle submission (POST)."""
+    if request.method == "POST":
+        title = request.form.get("title", "").strip()
+        description = request.form.get("description", "").strip()
+        priority = request.form.get("priority", "medium")
+
+        # Validation
+        errors = []
+        if not title:
+            errors.append("Title is required.")
+        if priority not in ("low", "medium", "high"):
+            errors.append("Priority must be low, medium, or high.")
+
+        if errors:
+            for error in errors:
+                flash(error, "error")
+            return render_template(
+                "new_bug.html",
+                title=title,
+                description=description,
+                priority=priority,
+            ), 400
+
+        create_bug(title, description, priority)
+        flash("Bug created successfully!", "success")
+        return redirect(url_for("index"))
+
+    return render_template("new_bug.html")
 
 
 if __name__ == "__main__":
