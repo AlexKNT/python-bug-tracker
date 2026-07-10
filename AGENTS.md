@@ -12,6 +12,8 @@ A single-user, local bug-tracking app (like a tiny Jira) with:
 - An SQLite database (`bugs.db`)
 - A browser-based interface for CRUD operations on bugs
 - Search/filter, status changes, and optional comments
+- venv is present at ./venv/. Use python.exe in ./venv/Scripts/python.exe
+- ./bugtracker/
 
 ## Guiding Principles
 - **Simplicity first.** Choose the most straightforward solution that works.

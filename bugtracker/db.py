@@ -47,12 +47,25 @@ def init_db():
     conn.close()
 
 
-def get_all_bugs():
-    """Return all bugs ordered by most recently created first."""
+def get_all_bugs(status=None, priority=None, search=None):
+    """Return all bugs, optionally filtered, ordered by most recently created first."""
     conn = get_connection()
-    bugs = conn.execute(
-        "SELECT * FROM bugs ORDER BY created_at DESC"
-    ).fetchall()
+    query = "SELECT * FROM bugs WHERE 1=1"
+    params = []
+
+    if status:
+        query += " AND status = ?"
+        params.append(status)
+    if priority:
+        query += " AND priority = ?"
+        params.append(priority)
+    if search:
+        query += " AND (title LIKE ? OR description LIKE ?)"
+        like = f"%{search}%"
+        params.extend([like, like])
+
+    query += " ORDER BY created_at DESC"
+    bugs = conn.execute(query, params).fetchall()
     conn.close()
     return bugs
 

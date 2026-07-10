@@ -8,52 +8,96 @@
         </a>
     </div>
 
-    {% if bugs %}
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-            <table class="w-full">
-                <thead class="bg-gray-50 border-b">
-                    <tr>
-                        <th class="text-left px-6 py-3 text-sm font-medium text-gray-500">Title</th>
-                        <th class="text-left px-6 py-3 text-sm font-medium text-gray-500">Status</th>
-                        <th class="text-left px-6 py-3 text-sm font-medium text-gray-500">Priority</th>
-                        <th class="text-left px-6 py-3 text-sm font-medium text-gray-500">Created</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for bug in bugs %}
-                        <tr class="border-b last:border-0 hover:bg-gray-50">
-                            <td class="px-6 py-4">
-                                <a href="/bug/{{ bug.id }}" class="text-blue-600 hover:underline font-medium">
-                                    {{ bug.title }}
-                                </a>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="inline-block px-2 py-1 text-xs font-medium rounded
-                                    {% if bug.status == 'open' %}bg-green-100 text-green-700
-                                    {% elif bug.status == 'in-progress' %}bg-yellow-100 text-yellow-700
-                                    {% else %}bg-gray-100 text-gray-700{% endif %}">
-                                    {{ bug.status }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="inline-block px-2 py-1 text-xs font-medium rounded
-                                    {% if bug.priority == 'high' %}bg-red-100 text-red-700
-                                    {% elif bug.priority == 'medium' %}bg-yellow-100 text-yellow-700
-                                    {% else %}bg-blue-100 text-blue-700{% endif %}">
-                                    {{ bug.priority }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-500">
-                                {{ bug.created_at[:10] }}
-                            </td>
+    <!-- Search & Filter Bar -->
+    <div class="bg-white rounded-lg shadow p-4 mb-4 flex flex-col sm:flex-row gap-3">
+        <input
+            type="text"
+            name="search"
+            placeholder="Search by title or description..."
+            value="{{ request.args.get('search', '') }}"
+            class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            hx-get="/"
+            hx-trigger="keyup changed delay:200ms"
+            hx-target="#bug-table"
+            hx-include="[name='status'],[name='priority']"
+        />
+        <select
+            name="status"
+            class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            hx-get="/"
+            hx-trigger="change"
+            hx-target="#bug-table"
+            hx-include="[name='search'],[name='priority']"
+        >
+            <option value="">All Statuses</option>
+            <option value="open" {{ 'selected' if request.args.get('status') == 'open' }}>Open</option>
+            <option value="in-progress" {{ 'selected' if request.args.get('status') == 'in-progress' }}>In Progress</option>
+            <option value="closed" {{ 'selected' if request.args.get('status') == 'closed' }}>Closed</option>
+        </select>
+        <select
+            name="priority"
+            class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            hx-get="/"
+            hx-trigger="change"
+            hx-target="#bug-table"
+            hx-include="[name='search'],[name='status']"
+        >
+            <option value="">All Priorities</option>
+            <option value="low" {{ 'selected' if request.args.get('priority') == 'low' }}>Low</option>
+            <option value="medium" {{ 'selected' if request.args.get('priority') == 'medium' }}>Medium</option>
+            <option value="high" {{ 'selected' if request.args.get('priority') == 'high' }}>High</option>
+        </select>
+    </div>
+
+    <!-- Bug Table (HTMX target) -->
+    <div id="bug-table">
+        {% if bugs %}
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b">
+                        <tr>
+                            <th class="text-left px-6 py-3 text-sm font-medium text-gray-500">Title</th>
+                            <th class="text-left px-6 py-3 text-sm font-medium text-gray-500">Status</th>
+                            <th class="text-left px-6 py-3 text-sm font-medium text-gray-500">Priority</th>
+                            <th class="text-left px-6 py-3 text-sm font-medium text-gray-500">Created</th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% else %}
-        <div class="bg-white rounded-lg shadow p-8 text-center">
-            <p class="text-gray-500">No bugs yet. Create your first one!</p>
-        </div>
-    {% endif %}
+                    </thead>
+                    <tbody>
+                        {% for bug in bugs %}
+                            <tr class="border-b last:border-0 hover:bg-gray-50">
+                                <td class="px-6 py-4">
+                                    <a href="/bug/{{ bug.id }}" class="text-blue-600 hover:underline font-medium">
+                                        {{ bug.title }}
+                                    </a>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-block px-2 py-1 text-xs font-medium rounded
+                                        {% if bug.status == 'open' %}bg-green-100 text-green-700
+                                        {% elif bug.status == 'in-progress' %}bg-yellow-100 text-yellow-700
+                                        {% else %}bg-gray-100 text-gray-700{% endif %}">
+                                        {{ bug.status }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-block px-2 py-1 text-xs font-medium rounded
+                                        {% if bug.priority == 'high' %}bg-red-100 text-red-700
+                                        {% elif bug.priority == 'medium' %}bg-yellow-100 text-yellow-700
+                                        {% else %}bg-blue-100 text-blue-700{% endif %}">
+                                        {{ bug.priority }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-500">
+                                    {{ bug.created_at[:10] }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="bg-white rounded-lg shadow p-8 text-center">
+                <p class="text-gray-500">No bugs match your filters.</p>
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}

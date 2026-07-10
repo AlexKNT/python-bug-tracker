@@ -13,8 +13,11 @@ init_db()
 
 @app.route("/")
 def index():
-    """Home page – list all bugs."""
-    bugs = get_all_bugs()
+    """Home page – list all bugs, optionally filtered by query params."""
+    status = request.args.get("status", "").strip()
+    priority = request.args.get("priority", "").strip()
+    search = request.args.get("search", "").strip()
+    bugs = get_all_bugs(status=status or None, priority=priority or None, search=search or None)
     return render_template("index.html", bugs=bugs)
 
 
