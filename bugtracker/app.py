@@ -2,7 +2,7 @@
 
 from flask import Flask, flash, redirect, render_template, request, url_for
 
-from db import create_bug, get_all_bugs, init_db
+from db import create_bug, get_all_bugs, get_bug, init_db
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-key"
@@ -48,6 +48,16 @@ def new_bug():
         return redirect(url_for("index"))
 
     return render_template("new_bug.html")
+
+
+@app.route("/bug/<int:bug_id>")
+def bug_detail(bug_id):
+    """Show full details for a single bug."""
+    bug = get_bug(bug_id)
+    if bug is None:
+        flash("Bug not found.", "error")
+        return redirect(url_for("index"))
+    return render_template("bug_detail.html", bug=bug)
 
 
 if __name__ == "__main__":
