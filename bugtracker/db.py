@@ -78,3 +78,22 @@ def get_bug(bug_id):
     ).fetchone()
     conn.close()
     return bug
+
+
+def update_bug(bug_id, title, description, status, priority):
+    """Update an existing bug and set updated_at to now."""
+    conn = get_connection()
+    conn.execute(
+        """
+        UPDATE bugs
+        SET title = ?,
+            description = ?,
+            status = ?,
+            priority = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        """,
+        (title, description, status, priority, bug_id),
+    )
+    conn.commit()
+    conn.close()
